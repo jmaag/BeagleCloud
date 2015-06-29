@@ -27,13 +27,23 @@ namespace IdentitySample.Areas.Api.Controllers
         /// <returns></returns>
         public async Task<JsonResult> RegisterUser(string email, string password)
         {
+            if (email == null || password == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "missing one or more parameters",
+                    UID = "",
+                }, JsonRequestBehavior.AllowGet);
+            }
+
+
             bool success = false;
+            string message = "";
             var roles = new List<string> { "Admin" };
-      
             //create a new user for this person
             var user = new ApplicationUser { UserName = email, Email = email, Tags = new List<IdentitySample.Models.Tag>(), Roles = roles };
-           
-        
+          
             var UserManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
             var result = await UserManager.CreateAsync(user, password);
 
@@ -41,20 +51,28 @@ namespace IdentitySample.Areas.Api.Controllers
             {
                 success = true;
             }
+            else
+            {
+                message =  "failed due to these errors: " + result.Errors.ToList().ToString();
+            }
 
             //await ZDB.Users.UpdateOneAsync(x => x.Email == email, Builders<ApplicationUser>.Update.Push(x => x.Roles, "Admin"));
 
+            var idString = "";
+            if(user!= null)
+            {
+                idString = user.Id.ToString();
+            }
 
-        
             return Json(new
             {
                 success = success,
-                UID = user.Id
-               
+                message = message,
+                UID = idString
             }, JsonRequestBehavior.AllowGet);
         }
 
-
+        
 
     }
 }

@@ -22,6 +22,9 @@ namespace BeagleCloud.Models
         {
             var client = new MongoClient("mongodb://localhost:27017");
             var database = client.GetDatabase("beagledb");
+
+            Roles = database.GetCollection<IdentityRole>("roles");
+            Users = database.GetCollection<ApplicationUser>("users");
         }
 
 
